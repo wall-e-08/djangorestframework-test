@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Newspaper
 
 
+# normal serializer
 class NewspaperSerializerOne(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     page = serializers.IntegerField()
@@ -17,3 +18,9 @@ class NewspaperSerializerOne(serializers.Serializer):
         instance.save()
         return instance
 
+
+# model serializer
+class NewspaperSerializerTwo(serializers.ModelSerializer):
+    class Meta:
+        model = Newspaper
+        fields = ['id', 'title', 'page', 'genre']

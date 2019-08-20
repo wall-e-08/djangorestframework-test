@@ -5,9 +5,14 @@ from rest_framework.response import Response
 from rest_framework import status, mixins, generics
 
 from .models import Newspaper
-from .serializers import NewspaperSerializerOne
+from .serializers import NewspaperSerializerOne, NewspaperSerializerTwo
+
+# for function based view
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 
 
+# rewriting api class-based view
 class NewspaperListOne(APIView):
     """
     List all newspaper, or create a new newspaper.
@@ -26,6 +31,7 @@ class NewspaperListOne(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# rewriting api class-based view
 class NewspaperDetailOne(APIView):
     """
     Retrieve, update or delete a newspaper instance.
@@ -56,6 +62,7 @@ class NewspaperDetailOne(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+# mixins class-based view
 class NewspaperListTwo(mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        generics.GenericAPIView):
@@ -69,6 +76,7 @@ class NewspaperListTwo(mixins.ListModelMixin,
         return self.create(request, *args, **kwargs)
 
 
+# mixins class-based view
 class NewspaperDetailTwo(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          mixins.DestroyModelMixin,
@@ -86,16 +94,55 @@ class NewspaperDetailTwo(mixins.RetrieveModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
+# generic class-based views
 class NewspaperListThree(generics.ListCreateAPIView):
     queryset = Newspaper.objects.all()
-    serializer_class = NewspaperSerializerOne
+    serializer_class = NewspaperSerializerTwo  # least code for model
 
 
+# generic class-based views
 class NewspaperDetailThree(generics.RetrieveUpdateDestroyAPIView):
     queryset = Newspaper.objects.all()
-    serializer_class = NewspaperSerializerOne
+    serializer_class = NewspaperSerializerTwo
 
 
+@api_view(['GET', 'POST'])
+@csrf_exempt
+def newspaper_list(request):
+    if request.method == 'GET':
+        newspaper = Newspaper.objects.all()
+        serializer = NewspaperSerializerTwo(newspaper, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = NewspaperSerializerTwo(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        print("chudse reeeee")
+        return Response(serializer.errors, status=400)
 
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@csrf_exempt
+def newspaper_detail(request, pk):
+    try:
+        newspaper = Newspaper.objects.get(pk=pk)
+    except Newspaper.DoesNotExist:
+        return Response(status=404)
+
+    if request.method == 'GET':
+        serializer = NewspaperSerializerTwo(newspaper)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = NewspaperSerializerTwo(newspaper, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        newspaper.delete()
+        return Response(status=204)
 
