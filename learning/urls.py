@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (newspaper_list, newspaper_detail,
                     NewspaperListOne, NewspaperDetailOne,
                     NewspaperListTwo, NewspaperDetailTwo,
-                    NewspaperListThree, NewspaperDetailThree, )
+                    NewspaperListThree, NewspaperDetailThree,
+                    UserView)
 
 urlpatterns = [
     path('newspaper/', newspaper_list),
@@ -16,4 +17,6 @@ urlpatterns = [
     
     path('newspaper3/', NewspaperListThree.as_view()),
     path('newspaper3/<int:pk>', NewspaperDetailThree.as_view()),
+    
+    path('users/', UserView.as_view())
 ]

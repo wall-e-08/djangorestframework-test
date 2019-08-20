@@ -1,15 +1,18 @@
 from django.http import Http404
+from django.contrib.auth import get_user_model
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, mixins, generics
+from rest_framework import status, mixins, generics, authentication, permissions
 
 from .models import Newspaper
-from .serializers import NewspaperSerializerOne, NewspaperSerializerTwo
+from .serializers import NewspaperSerializerOne, NewspaperSerializerTwo, UserSerializer
 
 # for function based view
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+
+User = get_user_model()
 
 
 # rewriting api class-based view
@@ -145,4 +148,14 @@ def newspaper_detail(request, pk):
     elif request.method == 'DELETE':
         newspaper.delete()
         return Response(status=204)
+
+
+class UserView(generics.ListAPIView):
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    http_method_names = ['get', 'post']
+
 

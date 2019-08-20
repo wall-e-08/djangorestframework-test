@@ -1,5 +1,8 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Newspaper
+
+User = get_user_model()
 
 
 # normal serializer
@@ -24,3 +27,9 @@ class NewspaperSerializerTwo(serializers.ModelSerializer):
     class Meta:
         model = Newspaper
         fields = ['id', 'title', 'page', 'genre']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'groups']
